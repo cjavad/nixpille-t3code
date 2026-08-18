@@ -83,6 +83,19 @@ trustworthy as the machine that produced the AppImage.
 
 ## Repository visibility
 
-Private, deliberately. The release assets are builds of someone else's
-unreleased branch, which is a different thing from the other `nixpille-*` flakes
-— those fetch from upstream's own published releases and redistribute nothing.
+**This repo must be public to be usable.** It is currently private, which breaks
+it in two places: `fetchurl` cannot download a release asset from a private repo,
+and `github:cjavad/nixpille-t3code` as a flake input cannot be resolved without a
+token. Both fail with an unhelpful 404.
+
+```sh
+gh repo edit cjavad/nixpille-t3code --visibility public --accept-visibility-change-consequences
+```
+
+It was created private out of caution about redistributing a build of someone
+else's unreleased branch. That caution turned out to be unnecessary: upstream's
+LICENSE is MIT, which permits redistribution.
+
+The alternative, if you would rather keep it private, is a `netrc-file` in
+`nix.conf` carrying a GitHub token — more moving parts, and it makes the flake
+unusable from any machine that lacks the token.

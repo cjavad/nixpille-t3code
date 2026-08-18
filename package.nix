@@ -91,7 +91,8 @@ appimageTools.wrapType2 {
     homepage = "https://github.com/pingdotgg/t3code";
     mainProgram = pname;
     platforms = [ "x86_64-linux" ];
-    # Upstream ships no license for the desktop artifact.
-    license = lib.licenses.unfree;
+    # Upstream LICENSE is MIT (Copyright (c) 2026 T3 Tools Inc.), which is also
+    # what makes redistributing a build of it in this repo's releases fine.
+    license = lib.licenses.mit;
   };
 }
