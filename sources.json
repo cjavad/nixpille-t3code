@@ -1,9 +1,9 @@
 {
-  "branch": "t3code/codex-turn-mapping",
-  "commit": "2d623ac6b41ad1ed25c0473474699866083e0b65",
-  "version": "0.0.33",
-  "url": "https://github.com/cjavad/nixpille-t3code/releases/download/v0.0.33-codex-turn-mapping/T3-Code-0.0.33-x86_64.AppImage",
+  "branch": "fork/deploy",
+  "commit": "639db9f940d3f7f9d6a85854716e6414ee64cd09",
+  "version": "0.0.42",
+  "url": "https://github.com/cjavad/nixpille-t3code/releases/download/v0.0.42-deploy/T3-Code-0.0.42-x86_64.AppImage",
   "hashes": {
-    "x86_64-linux": "sha256-rRpx44Yv93qDF9XTXnSAtXKf1m7NyPz3KZNZqXCcBZc="
+    "x86_64-linux": "sha256-6kw2neXwmu0L4ZmgCRwfjOJ87PDg1pHLe4y/2QYgcBU="
   }
 }
