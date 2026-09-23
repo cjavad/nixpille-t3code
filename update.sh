@@ -35,7 +35,7 @@ ssh "${SSH_OPTS[@]}" "$BUILDER" "set -e
   docker run --rm -v $OUT_DIR:/out -w /src t3code-desktop-builder:latest \
     sh -c 'vp run dist:desktop:linux && cp release/*.AppImage /out/'"
 
-commit="$(ssh "${SSH_OPTS[@]}" "$BUILDER" "docker run --rm --entrypoint cat t3code-builder:latest /opt/t3code/.t3-build-sha")"
+commit="$(ssh "${SSH_OPTS[@]}" "$BUILDER" "docker run --rm --entrypoint cat t3code-builder:latest /src/.t3-build-sha")"
 remote_file="$(ssh "${SSH_OPTS[@]}" "$BUILDER" "ls $OUT_DIR/*.AppImage | head -1")"
 asset="$(basename "$remote_file")"
 version="$(printf '%s' "$asset" | sed -E 's/^T3-Code-(.+)-x86_64\.AppImage$/\1/')"
