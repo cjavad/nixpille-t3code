@@ -61,16 +61,15 @@ appimageTools.wrapType2 {
     mkdir -p $out/share/applications
     if [ -f ${appimageContents}/t3code.desktop ]; then
       install -m444 ${appimageContents}/t3code.desktop $out/share/applications/${pname}.desktop
-      substituteInPlace $out/share/applications/${pname}.desktop \
-        --replace-quiet 'Exec=AppRun' 'Exec=${pname}' \
-        --replace-quiet 'Exec=t3code' 'Exec=${pname}'
+      sed -i -E 's|^Exec=.*|Exec=${pname} --no-sandbox %U|' \
+        $out/share/applications/${pname}.desktop
     else
       cat > $out/share/applications/${pname}.desktop <<EOF
     [Desktop Entry]
     Type=Application
     Name=T3 Code
     Comment=Agent harness control surface (branch ${branch})
-    Exec=${pname} %U
+    Exec=${pname} --no-sandbox %U
     Terminal=false
     Categories=Development;
     StartupWMClass=T3 Code
