@@ -1,7 +1,7 @@
 # nixpille-t3code
 
 Nix flake packaging the [T3 Code](https://github.com/pingdotgg/t3code) desktop
-app, built from an **arbitrary upstream branch** rather than a release.
+app, with a pinned fork artifact and an upstream-package escape hatch.
 
 ## Why a branch
 
@@ -50,6 +50,16 @@ programs.t3code = {
 
 `url` and `hash` must be set together; the module asserts on it. Setting one
 alone either fetches something unpinned or checks a hash against the wrong file.
+
+The default package is the pinned fork artifact. For an ordinary T3 Code
+installation, select the upstream package instead:
+
+```nix
+programs.t3code.package = inputs.nixpille-t3code.packages.${pkgs.system}.t3code-upstream;
+```
+
+Use the branch, version, URL, and hash options only with a custom AppImage. The
+`branch` option labels that artifact; it does not fetch or build a branch.
 
 The package takes the same arguments, if you would rather not use the module:
 

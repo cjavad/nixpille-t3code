@@ -14,9 +14,15 @@
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
+          t3codeFork = pkgs.callPackage ./package.nix { };
         in
         {
-          t3code = pkgs.callPackage ./package.nix { };
+          # The default stays pinned to the fork artifact in sources.json.
+          # The upstream package is exposed separately for consumers that do
+          # not need the fork's protocol or product patches.
+          t3code = t3codeFork;
+          t3code-fork = t3codeFork;
+          t3code-upstream = pkgs.t3code;
           default = self.packages.${system}.t3code;
         }
       );

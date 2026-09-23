@@ -15,25 +15,28 @@ set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 BUILDER="${T3CODE_BUILDER:-stuff}"          # ssh host with t3-remote checked out
+SSH_OPTS=(-F "${T3CODE_SSH_CONFIG:-/home/javad/.ssh/hosts.conf}")
 REMOTE_DIR="${T3CODE_REMOTE_DIR:-/root/t3-remote}"
 OUT_DIR="${T3CODE_OUT_DIR:-/root/stuff/devkit/dist}"
+SOURCE_REPO="${T3CODE_SOURCE_REPO:-https://github.com/cjavad/t3code.git}"
 BRANCH="${1:-$(jq -r .branch sources.json)}"
-REPO="${T3CODE_RELEASE_REPO:-cjavad/nixpille-t3code}"
+RELEASE_REPO="${T3CODE_RELEASE_REPO:-cjavad/nixpille-t3code}"
 
 log() { printf '\033[1;36m>\033[0m %s\n' "$*"; }
 
 log "building $BRANCH on $BUILDER"
-ssh "$BUILDER" "set -e
+ssh "${SSH_OPTS[@]}" "$BUILDER" "set -e
   cd $REMOTE_DIR
   docker build --target builder -t t3code-builder:latest \
-    --build-arg T3_REF='$BRANCH' --build-arg T3_CACHE_BUST=\$(git ls-remote https://github.com/pingdotgg/t3code.git 'refs/heads/$BRANCH' | cut -f1) .
+    --build-arg T3_REPO='$SOURCE_REPO' --build-arg T3_REF='$BRANCH' \
+    --build-arg T3_CACHE_BUST=\$(git ls-remote '$SOURCE_REPO' 'refs/heads/$BRANCH' | cut -f1) .
   docker build -f Dockerfile.desktop -t t3code-desktop-builder:latest .
   rm -f $OUT_DIR/*.AppImage
   docker run --rm -v $OUT_DIR:/out -w /src t3code-desktop-builder:latest \
     sh -c 'vp run dist:desktop:linux && cp release/*.AppImage /out/'"
 
-commit="$(ssh "$BUILDER" "docker run --rm --entrypoint cat t3code-builder:latest /opt/t3code/.t3-build-sha")"
-remote_file="$(ssh "$BUILDER" "ls $OUT_DIR/*.AppImage | head -1")"
+commit="$(ssh "${SSH_OPTS[@]}" "$BUILDER" "docker run --rm --entrypoint cat t3code-builder:latest /opt/t3code/.t3-build-sha")"
+remote_file="$(ssh "${SSH_OPTS[@]}" "$BUILDER" "ls $OUT_DIR/*.AppImage | head -1")"
 asset="$(basename "$remote_file")"
 version="$(printf '%s' "$asset" | sed -E 's/^T3-Code-(.+)-x86_64\.AppImage$/\1/')"
 
@@ -42,12 +45,12 @@ scp "$BUILDER:$remote_file" "./$asset"
 
 hash="$(nix hash file --type sha256 --sri "./$asset")"
 tag="v${version}-$(printf '%s' "$BRANCH" | sed 's|.*/||')"
-url="https://github.com/$REPO/releases/download/$tag/$asset"
+url="https://github.com/$RELEASE_REPO/releases/download/$tag/$asset"
 
 log "publishing $tag"
-gh release view "$tag" --repo "$REPO" >/dev/null 2>&1 \
-  && gh release upload "$tag" "./$asset" --repo "$REPO" --clobber \
-  || gh release create "$tag" "./$asset" --repo "$REPO" \
+gh release view "$tag" --repo "$RELEASE_REPO" >/dev/null 2>&1 \
+  && gh release upload "$tag" "./$asset" --repo "$RELEASE_REPO" --clobber \
+  || gh release create "$tag" "./$asset" --repo "$RELEASE_REPO" \
        --title "T3 Code $version ($BRANCH)" \
        --notes "Desktop AppImage built from \`$BRANCH\` at \`$commit\`.
 
